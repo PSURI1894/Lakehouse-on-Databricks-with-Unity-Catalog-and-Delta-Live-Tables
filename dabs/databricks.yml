@@ -1,0 +1,63 @@
+bundle:
+  name: enterprise-lakehouse
+
+artifacts:
+  default:
+    type: wheel
+    path: .
+
+targets:
+  development:
+    workspace:
+      host: https://adb-development-east.azuredatabricks.net
+      root_path: /Shared/.bundles/dev/enterprise-lakehouse
+    mode: development
+
+  staging:
+    workspace:
+      host: https://adb-staging-east.azuredatabricks.net
+      root_path: /Shared/.bundles/stage/enterprise-lakehouse
+    mode: production
+
+  production:
+    workspace:
+      host: https://adb-production-east.azuredatabricks.net
+      root_path: /Shared/.bundles/prod/enterprise-lakehouse
+    mode: production
+
+resources:
+  pipelines:
+    dynamic_medallion_pipeline:
+      name: "[${bundle.target}] Dynamic Medallion Pipeline"
+      libraries:
+        - notebook:
+            path: ../notebooks/run_dynamic_pipeline.py
+      configuration:
+        config_path: "/Shared/.bundles/${bundle.target}/src/dlt_engine/metadata/pipelines.yaml"
+      clusters:
+        - label: default
+          node_type_id: i3.xlarge
+          driver_node_type_id: i3.xlarge
+          autoscale:
+            min_workers: 2
+            max_workers: 16
+          spark_conf:
+            "spark.databricks.io.cache.enabled": "true"
+            "spark.databricks.photon.enabled": "true"
+
+  jobs:
+    nightly_maintenance_job:
+      name: "[${bundle.target}] Nightly Optimization and Vacuuming"
+      tasks:
+        - task_key: run_optimize
+          job_cluster_key: maintenance_cluster
+          notebook_task:
+            notebook_path: ../notebooks/nightly_optimization.sql
+      job_clusters:
+        - job_cluster_key: maintenance_cluster
+          new_cluster:
+            spark_version: 14.3.x-scala2.12
+            node_type_id: i3.xlarge
+            num_workers: 2
+            spark_conf:
+              "spark.databricks.photon.enabled": "true"
