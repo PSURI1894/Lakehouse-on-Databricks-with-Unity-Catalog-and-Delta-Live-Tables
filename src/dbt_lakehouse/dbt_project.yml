@@ -1,0 +1,27 @@
+name: 'dbt_lakehouse'
+version: '2.4.0'
+config-version: 2
+
+profile: 'databricks'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  dbt_lakehouse:
+    gold:
+      +materialized: table
+      +file_format: delta
+      # Dynamic UniForm activation for Iceberg reader accessibility
+      +delta_properties:
+        "delta.enableIcebergCompatV2": "true"
+        "delta.universalFormat.enabledFormats": "iceberg"
