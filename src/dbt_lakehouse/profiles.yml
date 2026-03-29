@@ -1,0 +1,19 @@
+databricks:
+  outputs:
+    dev:
+      type: databricks
+      schema: gold
+      host: "{{ env_var('DB_HOST', 'adb-1234567890.azuredatabricks.net') }}"
+      http_path: "{{ env_var('DB_HTTP_PATH', '/sql/1.0/warehouses/abcdef1234567890') }}"
+      token: "{{ env_var('DB_TOKEN', 'dapi_mock_token_for_validation') }}"
+      catalog: dev_catalog
+      threads: 8
+    prod:
+      type: databricks
+      schema: gold
+      host: "{{ env_var('DB_HOST_PROD', 'adb-9876543210.azuredatabricks.net') }}"
+      http_path: "{{ env_var('DB_HTTP_PATH_PROD', '/sql/1.0/warehouses/prodabcdef12345678') }}"
+      token: "{{ env_var('DB_TOKEN_PROD', 'dapi_prod_token_secure') }}"
+      catalog: prod_catalog
+      threads: 16
+  target: dev
