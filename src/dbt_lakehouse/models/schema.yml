@@ -1,0 +1,55 @@
+version: 2
+
+sources:
+  - name: silver
+    catalog: dev_catalog
+    schema: silver
+    tables:
+      - name: clean_customers
+      - name: clean_orders
+
+  - name: postgres_oltp
+    catalog: postgres_federation
+    schema: inventory
+    tables:
+      - name: products
+
+models:
+  - name: dim_customers
+    description: "Sanitized and deduplicated dimension containing global customer metrics."
+    columns:
+      - name: customer_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_products
+    description: "Federated products table synced from PostgreSQL operational databases."
+    columns:
+      - name: product_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_orders
+    description: "Analytical orders fact table consolidated via medallion silver and federated inventories."
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key linking to customer directory"
+        tests:
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+      - name: product_id
+        description: "Foreign key linking to product catalog"
+        tests:
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
