@@ -1,0 +1,65 @@
+pipelines:
+  - name: "bronze_ecom"
+    layer: "bronze"
+    tables:
+      - name: "raw_orders"
+        format: "cloudFiles"
+        source_path: "/mnt/landing/orders/"
+        cloud_files_format: "json"
+        schema_evolution_mode: "addNewColumns"
+        watermark: "10 minutes"
+        tags:
+          pii: "false"
+          retention: "365d"
+
+      - name: "raw_customers"
+        format: "cloudFiles"
+        source_path: "/mnt/landing/customers/"
+        cloud_files_format: "csv"
+        csv_header: true
+        schema_evolution_mode: "rescue"
+        tags:
+          pii: "true"
+          retention: "forever"
+
+  - name: "silver_ecom"
+    layer: "silver"
+    tables:
+      - name: "clean_orders"
+        source_table: "raw_orders"
+        expectations:
+          pk_not_null:
+            expr: "order_id IS NOT NULL"
+            action: "FAIL"
+          positive_amount:
+            expr: "amount > 0"
+            action: "DROP"
+          valid_country:
+            expr: "country_code RLIKE '^[A-Z]{2}$'"
+            action: "WARN"
+        cdc:
+          enabled: true
+          type: "SCD2"
+          key: "order_id"
+          sequence_by: "updated_at"
+          except_columns: ["_ingestion_ts", "_file_path"]
+        clustering_keys: ["customer_id", "order_date"]
+        tags:
+          classification: "internal"
+
+      - name: "clean_customers"
+        source_table: "raw_customers"
+        expectations:
+          pk_not_null:
+            expr: "customer_id IS NOT NULL"
+            action: "FAIL"
+          valid_email:
+            expr: "email LIKE '%@%'"
+            action: "DROP"
+        cdc:
+          enabled: true
+          type: "SCD1"
+          key: "customer_id"
+          sequence_by: "updated_at"
+        tags:
+          classification: "restricted"
