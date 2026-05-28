@@ -1,5 +1,4 @@
-import sys
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, List
 
 from src.dlt_engine.config_loader import PipelineConfig, TableConfig, load_config
 
@@ -7,7 +6,6 @@ from src.dlt_engine.config_loader import PipelineConfig, TableConfig, load_confi
 # When run locally during pytest, it falls back to mock implementations.
 try:
     import dlt
-    from pyspark.sql import DataFrame
     from pyspark.sql.functions import current_timestamp, input_file_name
 except ImportError:
     # Local mock classes for off-cluster unit testing validation.
