@@ -78,4 +78,4 @@ jobs:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_DEV_TOKEN }}
         run: |
           cd dabs
-          databricks bundle validate
+          databricks bundle validate --target development

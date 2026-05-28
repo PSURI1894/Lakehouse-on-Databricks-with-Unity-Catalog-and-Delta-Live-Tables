@@ -1,7 +1,8 @@
 import os
 from typing import Dict, List, Optional
-from pydantic import BaseModel, Field, field_validator
+
 import yaml
+from pydantic import BaseModel, Field, field_validator
 
 
 class TableTag(BaseModel):
