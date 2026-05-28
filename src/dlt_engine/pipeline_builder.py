@@ -14,6 +14,7 @@ except ImportError:
         def table(self, *args: Any, **kwargs: Any) -> Callable:
             def decorator(f: Callable) -> Callable:
                 return f
+
             return decorator
 
         def create_streaming_table(self, *args: Any, **kwargs: Any) -> None:
@@ -25,16 +26,19 @@ except ImportError:
         def expect_all(self, *args: Any, **kwargs: Any) -> Callable:
             def decorator(f: Callable) -> Callable:
                 return f
+
             return decorator
 
         def expect_all_or_drop(self, *args: Any, **kwargs: Any) -> Callable:
             def decorator(f: Callable) -> Callable:
                 return f
+
             return decorator
 
         def expect_all_or_fail(self, *args: Any, **kwargs: Any) -> Callable:
             def decorator(f: Callable) -> Callable:
                 return f
+
             return decorator
 
     dlt = MockDLT()  # type: ignore

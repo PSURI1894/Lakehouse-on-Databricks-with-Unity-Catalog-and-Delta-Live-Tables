@@ -1,3 +1,8 @@
+# =====================================================================
+# LAKEHOUSE FEDERATION CONNECTIONS
+# Provisions virtual connections to external database engines.
+# =====================================================================
+
 # 1. PostgreSQL Federated Transactional database connection
 resource "databricks_connection" "postgres" {
   provider        = databricks.us_east
@@ -25,20 +30,4 @@ resource "databricks_connection" "snowflake" {
     sfWarehouse= "ANALYTICS_WH"
   }
   comment = "Enterprise DW link for historical reporting and validation queries"
-}
-
-# 3. Connection access privileges for engineering and analyst roles
-resource "databricks_grants" "postgres_connection_grants" {
-  provider = databricks.us_east
-  connection = databricks_connection.postgres.name
-
-  grant {
-    principal  = "data_engineers"
-    privileges = ["ALL_PRIVILEGES"]
-  }
-
-  grant {
-    principal  = "bi_analysts"
-    privileges = ["READ_FILES"]
-  }
 }
