@@ -40,7 +40,7 @@ except ImportError:
 
             return decorator
 
-    dlt = MockDLT()  # type: ignore
+    dlt = MockDLT()
 
 
 class DltPipelineCompiler:
