@@ -66,7 +66,9 @@ class TestLakehouseEngine(unittest.TestCase):
         # Execute compilation
         compiler.compile(mock_spark)
 
-        # Check if table function was dynamically compiled and registered in globals()
-        self.assertIn("raw_mock_orders", globals())
-        registered_func = globals()["raw_mock_orders"]
+        # Check if table function was dynamically compiled and registered in module globals
+        import src.dlt_engine.pipeline_builder as pb
+
+        self.assertIn("raw_mock_orders", pb.__dict__)
+        registered_func = pb.__dict__["raw_mock_orders"]
         self.assertTrue(callable(registered_func))
